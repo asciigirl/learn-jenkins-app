@@ -2,16 +2,19 @@ pipeline {
     agent any
 
     stages {
-        stage('With Docker') {
+        stage('Build') {
             agent {
                 docker {
                     image 'node:18-alpine'
+                    reuseNode true
                 }
             }
             steps {
                 sh '''
+                node --version
                 npm --version
-                npm start
+                npm ci
+                npm run build
                 '''
             }
         }
