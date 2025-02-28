@@ -9,7 +9,10 @@ pipeline {
                 }
             }
             steps {
-                sh 'npm --version'
+                sh '''
+                npm --version
+                npm start
+                '''
             }
         }
     }
