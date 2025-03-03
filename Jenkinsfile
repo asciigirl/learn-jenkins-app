@@ -4,6 +4,7 @@ pipeline {
     environment {
         NETLIFY_SITE_ID = '1014f5d9-19fb-49aa-aa75-dee513a59f4b'
         NETLIFY_AUTH_TOKEN = credentials('netlify-token')
+        CI_ENVIRONMENT_URL = 'https://magnificent-pothos-edbc2a.netlify.app'
     }
 
     stages {
@@ -91,6 +92,29 @@ pipeline {
                     node_modules/.bin/netlify status
                     node_modules/.bin/netlify deploy --dir=build --prod
                 '''
+            }
+        }
+        stage('Prod E2E') {
+            agent {
+                docker {
+                    image 'mcr.microsoft.com/playwright:v1.39.0-jammy'
+                    reuseNode true
+                }
+            }
+            environment {
+                CI_ENVIRONMENT_URL = 'https://magnificent-pothos-edbc2a.netlify.app'
+            }
+
+            steps {
+                sh '''
+                    npx playwright test  --reporter=html
+                '''
+            }
+
+            post {
+                always {
+                    publishHTML([allowMissing: false, alwaysLinkToLastBuild: false, keepAll: false, reportDir: 'playwright-report', reportFiles: 'index.html', reportName: 'Playwright E2E Prod', reportTitles: '', useWrapperFileDirectly: true])
+                }
             }
         }
     }
