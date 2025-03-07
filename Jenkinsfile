@@ -22,12 +22,11 @@ pipeline {
                     node_modules/.bin/netlify status
                     node_modules/.bin/netlify deploy --dir=build --json > deploy-output.json
                 '''
-            }
-            script {
-                env.STAGING_URL = sh(script: "node_modules/.bin/node-jq -r '.deploy_url' deploy-output.json", returnStdout:true )
+                script {
+                    env.STAGING_URL = sh(script: "node_modules/.bin/node-jq -r '.deploy_url' deploy-output.json", returnStdout:true )
+                }
             }
         }
-
         stage('Staging E2E') {
             agent {
                 docker {
@@ -51,7 +50,6 @@ pipeline {
                 }
             }
         }
-
         stage ('Approval') {
             steps {
                 timeout(time:15, unit:'MINUTES'){
@@ -59,7 +57,6 @@ pipeline {
                 }
             }
         }
-
         stage('Deploy Prod') {
             agent {
                 docker {
